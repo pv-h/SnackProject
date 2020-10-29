@@ -17,7 +17,7 @@ const val CELLS_OF_FIELD = 10
 
 
 class MainActivity : AppCompatActivity() {
-//    private val allTale = mutableListOf<PartOfTale>()
+    private val allTale = mutableListOf<PartOfTale>()
     private val human by lazy {
         ImageView(this)
     }
@@ -53,27 +53,27 @@ class MainActivity : AppCompatActivity() {
          container.removeView(human)
          container.addView(human)
     }
-//    private fun addPartOfTale (top:Int, left:Int){
-//        val talePart = drawPartOfTale(top,left)
-//        allTale.add(PartOfTale(top,left,talePart))
-//    }
+    private fun addPartOfTale (top:Int, left:Int){
+        val talePart = drawPartOfTale(top,left)
+        allTale.add(PartOfTale(top, left, talePart))
+    }
 
-//    private fun drawPartOfTale(top: Int, left: Int): ImageView {
-//        val taleImage = ImageView(this)
-//        taleImage.setImageResource(R.drawable.ic_person)
-//        taleImage.setBackgroundColor(ContextCompat.getColor(this,R.color.colorAccent))
-//        taleImage.layoutParams = FrameLayout.LayoutParams(HEAD_SIZE, HEAD_SIZE)
-//        (taleImage.layoutParams as FrameLayout.LayoutParams).topMargin = top
-//        (taleImage.layoutParams as FrameLayout.LayoutParams).leftMargin = left
-//
-//        container.addView(taleImage)
-//        return taleImage
-//    }
+    private fun drawPartOfTale(top: Int, left: Int): ImageView {
+        val taleImage = ImageView(this)
+        taleImage.setImageResource(R.drawable.ic_person)
+        taleImage.setBackgroundColor(ContextCompat.getColor(this,R.color.colorSnakeHead))
+        taleImage.layoutParams = FrameLayout.LayoutParams(HEAD_SIZE, HEAD_SIZE)
+        (taleImage.layoutParams as FrameLayout.LayoutParams).topMargin = top
+        (taleImage.layoutParams as FrameLayout.LayoutParams).leftMargin = left
+
+        container.addView(taleImage)
+        return taleImage
+    }
 
     private fun checkIfSnakeEatsPerson(head: View) {
         if (head.left==human.left && head.top==human.top) {
             generateNewHuman()
-//            addPartOfTale(head.top,head.left)
+            addPartOfTale(head.top,head.left)
         }
     }
 
@@ -90,7 +90,7 @@ class MainActivity : AppCompatActivity() {
 //                showScore()
 //                return@runOnUiThread
 //            }
-//            makeTaleMove(head.top,head.left)
+            makeTaleMove(head.top,head.left)
             checkIfSnakeEatsPerson(head)
             container.removeView(head)
             container.addView(head)
@@ -116,23 +116,23 @@ class MainActivity : AppCompatActivity() {
 //        return false
 //    }
 
-//    private fun makeTaleMove(headTop: Int, headLeft: Int) {
-//        var tempTalePart:PartOfTale? = null
-//        for (index in 0 until allTale.size){
-//            val talePart = allTale[index]
-//            container.removeView(talePart.imageView)
-//            if (index==0){
-//                tempTalePart = talePart
-//                allTale[index] = PartOfTale(headTop, headLeft, drawPartOfTale(headTop, headLeft))
-//            }else{
-//                val anotherTempPartOfTale = allTale[index]
-//                tempTalePart?.let {
-//                    allTale[index] = PartOfTale(it.top,it.left,drawPartOfTale(it.top,it.left))
-//                }
-//                tempTalePart = anotherTempPartOfTale
-//            }
-//        }
-//    }
+    private fun makeTaleMove(headTop: Int, headLeft: Int) {
+        var tempTalePart:PartOfTale? = null
+        for (index in 0 until allTale.size){
+            val talePart = allTale[index]
+            container.removeView(talePart.imageView)
+            if (index==0){
+                tempTalePart = talePart
+                allTale[index] = PartOfTale(headTop, headLeft, drawPartOfTale(headTop, headLeft))
+            }else{
+                val anotherTempPartOfTale = allTale[index]
+                tempTalePart?.let {
+                    allTale[index] = PartOfTale(it.top, it.left, drawPartOfTale(it.top, it.left))
+                }
+                tempTalePart = anotherTempPartOfTale
+            }
+        }
+    }
 }
 
 enum class Directions {
