@@ -77,7 +77,7 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    fun move(directions: Directions, head: View) {
+    private fun move(directions: Directions, head: View) {
         when (directions) {
             Directions.UP -> (head.layoutParams as FrameLayout.LayoutParams).topMargin -= HEAD_SIZE
             Directions.BOTTOM -> (head.layoutParams as FrameLayout.LayoutParams).topMargin += HEAD_SIZE
@@ -91,7 +91,7 @@ class MainActivity : AppCompatActivity() {
 //                return@runOnUiThread
 //            }
 //            makeTaleMove(head.top,head.left)
-//            checkIfSnakeEatsPerson(head)
+            checkIfSnakeEatsPerson(head)
             container.removeView(head)
             container.addView(head)
         }
