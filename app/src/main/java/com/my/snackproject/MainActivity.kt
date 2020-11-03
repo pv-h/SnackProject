@@ -1,11 +1,11 @@
  package com.my.snackproject
 
 import android.os.Bundle
-import android.view.View
 import android.widget.FrameLayout
 import android.widget.ImageView
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.content.ContextCompat
+//import androidx.core.content.ContextCompat
 import com.my.snackproject.SnakeCore.isPlay
 import com.my.snackproject.SnakeCore.startTheGame
 import com.my.snackproject.SnakeCore.nextMove
@@ -21,23 +21,28 @@ class MainActivity : AppCompatActivity() {
     private val human by lazy {
         ImageView(this)
     }
+    private val head by lazy {
+        ImageView(this)
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        val head = View(this)
+//        val head = View(this)
         head.layoutParams = FrameLayout.LayoutParams(HEAD_SIZE, HEAD_SIZE)
-        head.background = ContextCompat.getDrawable(this, R.drawable.circle)
-//        container.layoutParams = FrameLayout.LayoutParams(HEAD_SIZE* CELLS_OF_FIELD, HEAD_SIZE* CELLS_OF_FIELD)
+        head.setImageResource(R.drawable.snake_head)
+//        head.background = ContextCompat.getDrawable(this, R.drawable.circle)  - не очень нужный кусок кода, впоследствии думаю можно удалить.
+//        container.layoutParams = FrameLayout.LayoutParams(HEAD_SIZE* CELLS_OF_FIELD, HEAD_SIZE* CELLS_OF_FIELD) очень странный кусок кода приводящий к падению приложения TODO
 
         startTheGame()
         generateNewHuman()
-        nextMove = { move(Directions.BOTTOM, head) }
+        nextMove = { move(Directions.BOTTOM) }
 
-        ivArrowUp.setOnClickListener { nextMove = { move(Directions.UP, head) } }
-        ivArrowBottom.setOnClickListener { nextMove = { move(Directions.BOTTOM, head) } }
-        ivArrowLeft.setOnClickListener { nextMove = { move(Directions.LEFT, head) } }
-        ivArrowRight.setOnClickListener { nextMove = { move(Directions.RIGHT, head) } }
+        ivArrowUp.setOnClickListener { nextMove = { move(Directions.UP) } }
+        ivArrowBottom.setOnClickListener { nextMove = { move(Directions.BOTTOM) } }
+        ivArrowLeft.setOnClickListener { nextMove = { move(Directions.LEFT) } }
+        ivArrowRight.setOnClickListener { nextMove = { move(Directions.RIGHT) } }
         ivPause.setOnClickListener {
             if (isPlay) ivPause.setImageResource(R.drawable.ic_play)
             else ivPause.setImageResource(R.drawable.ic_pause)
@@ -60,8 +65,8 @@ class MainActivity : AppCompatActivity() {
 
     private fun drawPartOfTale(top: Int, left: Int): ImageView {
         val taleImage = ImageView(this)
-        taleImage.setImageResource(R.drawable.ic_person)
-        taleImage.setBackgroundColor(ContextCompat.getColor(this,R.color.colorSnakeHead))
+        taleImage.setImageResource(R.drawable.snake_scales)
+//        taleImage.setBackgroundColor(ContextCompat.getColor(this,R.color.colorSnakeHead))   - не очень нужный кусок кода, впоследствии думаю можно удалить.
         taleImage.layoutParams = FrameLayout.LayoutParams(HEAD_SIZE, HEAD_SIZE)
         (taleImage.layoutParams as FrameLayout.LayoutParams).topMargin = top
         (taleImage.layoutParams as FrameLayout.LayoutParams).leftMargin = left
@@ -70,14 +75,14 @@ class MainActivity : AppCompatActivity() {
         return taleImage
     }
 
-    private fun checkIfSnakeEatsPerson(head: View) {
+    private fun checkIfSnakeEatsPerson() {
         if (head.left==human.left && head.top==human.top) {
             generateNewHuman()
             addPartOfTale(head.top,head.left)
         }
     }
 
-    private fun move(directions: Directions, head: View) {
+    private fun move(directions: Directions) {
         when (directions) {
             Directions.UP -> (head.layoutParams as FrameLayout.LayoutParams).topMargin -= HEAD_SIZE
             Directions.BOTTOM -> (head.layoutParams as FrameLayout.LayoutParams).topMargin += HEAD_SIZE
@@ -85,45 +90,45 @@ class MainActivity : AppCompatActivity() {
             Directions.RIGHT -> (head.layoutParams as FrameLayout.LayoutParams).leftMargin += HEAD_SIZE
         }
         runOnUiThread {
-//            if (checkIfSnakeSmash(head)){
-//                isPlay = false
-//                showScore()
-//                return@runOnUiThread
-//            }
-            makeTaleMove(head.top,head.left)
-            checkIfSnakeEatsPerson(head)
+            if (checkIfSnakeSmash()){
+                isPlay = false
+                showScore()
+                return@runOnUiThread
+            }
+            makeTaleMove()
+            checkIfSnakeEatsPerson()
             container.removeView(head)
             container.addView(head)
         }
     }
 
-//    private fun showScore() {
-//        AlertDialog.Builder(this)
-//            .setTitle("Your score: ${allTale.size} items")
-//            .setPositiveButton("ok") { _, _ ->
-//                this.recreate()
-//                }
-//            .setCancelable(false)
-//            .create()
-//            .show()
-//    }
+    private fun showScore() {
+        AlertDialog.Builder(this)
+            .setTitle("Your score: ${allTale.size} items")
+            .setPositiveButton("ok") { _, _ ->
+                this.recreate()
+                }
+            .setCancelable(false)
+            .create()
+            .show()
+    }
 //
-//    private fun checkIfSnakeSmash(head: View): Boolean{
-//        for (talePart in allTale){
-//            if (talePart.left==head.left && talePart.top==head.top) return true
-//        }
-//        if (head.top< 0 || head.left< 0 || head.top >= HEAD_SIZE* CELLS_OF_FIELD || head.left >= HEAD_SIZE* CELLS_OF_FIELD) return true
-//        return false
-//    }
+    private fun checkIfSnakeSmash(): Boolean{
+        for (talePart in allTale){
+            if (talePart.left==head.left && talePart.top==head.top) return true
+        }
+        if (head.top< 0 || head.left< 0 || head.top >= HEAD_SIZE* CELLS_OF_FIELD || head.left >= HEAD_SIZE* CELLS_OF_FIELD) return true
+        return false
+    }
 
-    private fun makeTaleMove(headTop: Int, headLeft: Int) {
+    private fun makeTaleMove() {
         var tempTalePart:PartOfTale? = null
         for (index in 0 until allTale.size){
             val talePart = allTale[index]
             container.removeView(talePart.imageView)
             if (index==0){
                 tempTalePart = talePart
-                allTale[index] = PartOfTale(headTop, headLeft, drawPartOfTale(headTop, headLeft))
+                allTale[index] = PartOfTale(head.top, head.left, drawPartOfTale(head.top, head.left))
             }else{
                 val anotherTempPartOfTale = allTale[index]
                 tempTalePart?.let {

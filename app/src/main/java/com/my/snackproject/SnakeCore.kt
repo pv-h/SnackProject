@@ -4,15 +4,21 @@ object SnakeCore {
 
     var nextMove: () -> Unit = {}
     var isPlay = true
+    private var thread: Thread
+init {
+    thread = Thread {
+        while (true) {
+            Thread.sleep(600)
+            if (isPlay) {
+                nextMove()
+            }
+        }
+    }
+    thread.start()
+}
+
 
     fun startTheGame() {
-        Thread(Runnable {
-            while (true) {
-                Thread.sleep(500)
-                if (isPlay) {
-                    nextMove()
-                }
-            }
-        }).start()
+    isPlay = true
     }
 }
