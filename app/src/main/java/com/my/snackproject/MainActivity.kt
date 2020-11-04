@@ -1,4 +1,4 @@
- package com.my.snackproject
+   package com.my.snackproject
 
 import android.os.Bundle
 import android.widget.FrameLayout
@@ -24,6 +24,7 @@ class MainActivity : AppCompatActivity() {
     private val head by lazy {
         ImageView(this)
     }
+    private var currentDirections = Directions.BOTTOM
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -39,15 +40,19 @@ class MainActivity : AppCompatActivity() {
         generateNewHuman()
         nextMove = { move(Directions.BOTTOM) }
 
-        ivArrowUp.setOnClickListener { nextMove = { move(Directions.UP) } }
-        ivArrowBottom.setOnClickListener { nextMove = { move(Directions.BOTTOM) } }
-        ivArrowLeft.setOnClickListener { nextMove = { move(Directions.LEFT) } }
-        ivArrowRight.setOnClickListener { nextMove = { move(Directions.RIGHT) } }
+        ivArrowUp.setOnClickListener { nextMove = { checkIfCurrentDirectionIsNotOpposite(Directions.UP, Directions.BOTTOM) } }
+        ivArrowBottom.setOnClickListener { nextMove = { checkIfCurrentDirectionIsNotOpposite(Directions.BOTTOM, Directions.UP) } }
+        ivArrowLeft.setOnClickListener { nextMove = { checkIfCurrentDirectionIsNotOpposite(Directions.LEFT, Directions.RIGHT) } }
+        ivArrowRight.setOnClickListener { nextMove = { checkIfCurrentDirectionIsNotOpposite(Directions.RIGHT, Directions.LEFT) } }
         ivPause.setOnClickListener {
             if (isPlay) ivPause.setImageResource(R.drawable.ic_play)
             else ivPause.setImageResource(R.drawable.ic_pause)
             isPlay = !isPlay
         }
+    }
+    private fun checkIfCurrentDirectionIsNotOpposite(properDirections: Directions, oppositeDirections: Directions){
+        if (currentDirections == oppositeDirections) move(currentDirections)
+        else move(properDirections)
     }
 
     private fun generateNewHuman() {
@@ -84,10 +89,10 @@ class MainActivity : AppCompatActivity() {
 
     private fun move(directions: Directions) {
         when (directions) {
-            Directions.UP -> (head.layoutParams as FrameLayout.LayoutParams).topMargin -= HEAD_SIZE
-            Directions.BOTTOM -> (head.layoutParams as FrameLayout.LayoutParams).topMargin += HEAD_SIZE
-            Directions.LEFT -> (head.layoutParams as FrameLayout.LayoutParams).leftMargin -= HEAD_SIZE
-            Directions.RIGHT -> (head.layoutParams as FrameLayout.LayoutParams).leftMargin += HEAD_SIZE
+            Directions.UP -> moveHeadAndRotate(Directions.UP, 90f, -HEAD_SIZE)
+            Directions.BOTTOM -> moveHeadAndRotate(Directions.BOTTOM, 270f, HEAD_SIZE)
+            Directions.LEFT -> moveHeadAndRotate(Directions.LEFT, 0f, -HEAD_SIZE)
+            Directions.RIGHT -> moveHeadAndRotate(Directions.RIGHT, 180f, HEAD_SIZE)
         }
         runOnUiThread {
             if (checkIfSnakeSmash()){
@@ -100,6 +105,19 @@ class MainActivity : AppCompatActivity() {
             container.removeView(head)
             container.addView(head)
         }
+    }
+
+    private fun moveHeadAndRotate(directions: Directions, angle: Float, coordinates: Int){
+        head.rotation = angle
+        when(directions){
+            Directions.UP, Directions.BOTTOM -> {
+                (head.layoutParams as FrameLayout.LayoutParams).topMargin += coordinates
+            }
+            Directions.LEFT, Directions.RIGHT -> {
+                (head.layoutParams as FrameLayout.LayoutParams).leftMargin += coordinates
+            }
+        }
+        currentDirections = directions
     }
 
     private fun showScore() {
